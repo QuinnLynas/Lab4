@@ -3,6 +3,7 @@ title: "Lab 4"
 author: "Quinn Lynas"
 embed-resources: true
 code-tools: true
+format: gfm
 echo: true
 ---
 # Part 1: Setup
