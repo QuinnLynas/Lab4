@@ -1,3 +1,10 @@
+---
+title: "Lab 4"
+author: "Quinn Lynas"
+embed-resources: true
+code-tools: true
+echo: true
+---
 # Part 1: Setup
 
 ## GitHub Workflow
@@ -38,7 +45,7 @@ In the code chunk below, load in the packages necessary for your analysis. You s
 
 ```{r}
 #| label: setup
-
+library(tidyverse)
 ```
 
 # Part 2: Data Context
@@ -68,7 +75,7 @@ When you read in the data give it an appropriate name for what the data represen
 
 ```{r}
 #| label: load-data
-
+buoy_data <- read_table("data-raw/buoy_2024.txt")
 ```
 
 Notice that the data is all read in as a character value and the first row contains information that is not data, but additional information about the variables: this is called a "comment" in the data.  
@@ -78,7 +85,7 @@ In your data, you will notice the `#` in front of `yr` in the second row. That i
 
 ```{r}
 #| label: load-data-comment
-
+buoy_data <- read_table("data-raw/buoy_2024.txt", comment = "#")
 ```
 
 
@@ -87,7 +94,8 @@ We want to use snake_case for our variable names. Use the `janitor` package to c
 
 ```{r}
 #| label: clean-names
-
+library(janitor)
+buoy_data <- clean_names(buoy_data)
 ```
 
 ## Step 4: Write the Data Part 1
@@ -97,7 +105,7 @@ Write the data to a `csv` file called `buoy_update.csv`. Be sure to write it to 
 
 ```{r}
 #| label: write-data-part-1
-
+write.csv(buoy_data, file = "data-raw/buoy_update.csv")
 ```
 
 
@@ -112,7 +120,7 @@ Remember that now we are reading back in a data file of type `csv`. Now when you
 
 ```{r}
 #| label: load-data-again
-
+csv_buoy <- read_csv("data-raw/buoy_update.csv", col_types = list("c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c", "c"), na = c("99", "999"))
 ```
 
 This is great! But we created another problem. Now all of our numeric values are being treated like characters and we don't want that. There are a couple of ways to fix this. We can write and reread in the data setting the column types to `double` or we can use the `readr` parsing functions. 
@@ -121,7 +129,7 @@ Here is the code you can use to fix the data without exporting and importing aga
 
 ```{r}
 #| label: parse-double
-buoy_final <- your_file_name |> 
+buoy_final <- csv_buoy |> 
   mutate(across(.cols = everything(), ~parse_double(.x)))
 ```
 
@@ -130,12 +138,27 @@ buoy_final <- your_file_name |>
 Now we have our clean, correctly classified, data ready for analysis as `buoy_final`. Go ahead and write that data as a `csv` file into your `data-clean` file. Once you've done that. Set the data cleaning code chunks to `eval: false` so that you do not rerun them again when you render the document. 
 
 
+```{r}
+#| label: data cleaning
+#| eval: false
+
+write.csv(buoy_final, file = "data-clean/buoy_final.csv")
+```
+
+
 # Part 3: Recreate the Following Visualization
 Now that are data is "analytic ready", go ahead and read in your clean data and use it to try and recreate the following visualization. Do your best to match the following visualization as close as possible. (Hint: when specifying color, you may need to use `factor()` to get R to treat a continuous value as discrete).  
 
 ```{r}
 #| label: monterey-air-temp-viz
-
+ggplot(data = buoy_final, aes(x = mm, y = atmp)) + 
+  geom_point(aes(color = factor(mm)), position = position_jitter(width = 0.1), alpha = 0.1) +
+  scale_color_viridis_d(begin = 0.1, end = 0.95) + 
+  geom_smooth(color = "black") + 
+  guides(color = "none") + 
+  theme_minimal() + 
+  labs(y = "Air Temperature (Celsius)", x = "Month in 2024", subtitle = "Monterey Bay Canyon Air Temperature 2024", caption = "Source: NOAA National Data Buoy Center")
+  
 
 ```
 
@@ -152,7 +175,9 @@ One fun source for data is [Tidy Tuesday](https://github.com/rfordatascience/tid
 
 **For your found data write a brief description of the data and and provide its source.**
 
->Insert your description and link to your source here. Identify 2-3 research questions you could try to answer with this data.  
+> I am interested in NBA data. The particular data sets I am looking at include team performance (record) and team salary. I want to combine multiple data sets and analyze these two variables to see if there is some relationship. Additionally, I would like to include NBA coaches and see how they affect team outcome. I have found 2 datasets so far on Kaggle, I will link them here: https://www.kaggle.com/datasets/boonpalipatana/nba-season-records-from-every-year
+https://www.kaggle.com/datasets/loganlauton/nba-players-and-team-data
+
 
 
 
